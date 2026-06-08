@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem é o Espião? | Jogo de Desenho</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .perspective { perspective: 1000px; }
+        .card-inner { transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+        .card-inner.flipped { transform: rotateY(180deg); }
+        .card-front, .card-back { backface-visibility: hidden; position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3); }
+        .card-back { transform: rotateY(180deg); }
+        .no-select { user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        /* Estilização da barra de rolagem do tutorial para mobile/desktop */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4338ca; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4 font-sans">
+
+    <div id="tutorial-screen" class="w-full max-w-lg text-center bg-slate-800 p-6 md:p-8 rounded-2xl border border-slate-700 shadow-2xl my-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-indigo-400 mb-2 flex justify-center items-center gap-2">🕵️ Quem é o Espião?</h1>
+        <p class="text-slate-400 mb-6 text-sm">Manual Oficial do Jogo de Desenho</p>
+
+        <div class="text-left text-slate-300 space-y-4 mb-8 text-sm md:text-base max-h-[50vh] overflow-y-auto pr-3 custom-scrollbar">
+            
+            <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-600/50">
+                <h2 class="text-indigo-300 font-bold text-lg mb-2 flex items-center gap-2">📱 1. O Sorteio Secreto</h2>
+                <p>Escolham a quantidade de jogadores e uma categoria. Dependendo do número de pessoas, pode haver mais de um Espião! Os jogadores passam o celular e veem sua função em segredo. Os Civis verão a mesma palavra. Os Espiões não saberão a palavra (e não sabem quem são os outros espiões).</p>
+            </div>
+
+            <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-600/50">
+                <h2 class="text-emerald-300 font-bold text-lg mb-2 flex items-center gap-2">🎨 2. A Hora do Desenho</h2>
+                <p>Peguem uma única folha de papel e uma caneta. Começando pelo Jogador 1, cada pessoa deve fazer <strong>apenas um único traço contínuo</strong> (sem tirar a caneta do papel) para tentar desenhar o objeto secreto em conjunto.</p>
+                <div class="mt-3 p-3 bg-indigo-950/50 rounded-lg border border-indigo-500/30 text-indigo-200 text-xs md:text-sm">
+                    ⚠️ <strong>O Desafio do Espião:</strong> Como o Espião não sabe o que é o desenho, ele deve fingir que sabe e fazer traços genéricos que combinem com o que os Civis desenharam para passar despercebido!
+                </div>
+            </div>
+
+            <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-600/50">
+                <h2 class="text-rose-300 font-bold text-lg mb-2 flex items-center gap-2">🛑 3. Suspeita e Votação</h2>
+                <p>A qualquer momento, se alguém desconfiar de um traço absurdo, pode pedir uma Votação de Emergência.</p>
+                <ul class="list-disc pl-5 mt-2 space-y-1 text-slate-400 text-xs md:text-sm">
+                    <li>Contem até 3 e todos apontam para quem desconfiam ao mesmo tempo.</li>
+                    <li><strong>Sem Consenso:</strong> Se os votos se dividirem, ninguém é expulso e o desenho continua.</li>
+                    <li><strong>Maioria Absoluta:</strong> Se a maioria apontar para uma pessoa, ela é acusada e revela seu card!</li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-600/50">
+                <h2 class="text-amber-300 font-bold text-lg mb-2 flex items-center gap-2">🏆 4. Fim de Jogo</h2>
+                <ul class="list-disc pl-5 space-y-2 text-slate-300 text-xs md:text-sm">
+                    <li>Se a maioria acusar um <strong>Civil</strong>, o jogo acaba e <strong>Os Espiões Vencem</strong>!</li>
+                    <li>Se a maioria acusar um <strong>Espião</strong>, ele está fora. <strong>Mas atenção:</strong> O jogo só acaba quando TODOS os espiões forem pegos. Se houver mais de um, continuem desenhando!</li>
+                    <li><strong>A Última Chance:</strong> Quando um Espião é pego, ele pode tentar adivinhar a palavra secreta. Se acertar, rouba a vitória! Se errar, os Civis ganham.</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <button onclick="showSetup()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-indigo-500/30 transform active:scale-95 text-lg">
+            Entendi, Ir para o Jogo!
+        </button>
+    </div>
+
+    <div id="setup-screen" class="hidden w-full max-w-md text-center bg-slate-800 p-6 md:p-8 rounded-2xl border border-slate-700 shadow-2xl">
+        <h1 class="text-3xl font-bold mb-2 text-indigo-400">Preparação</h1>
+        <p class="text-slate-400 mb-6 text-sm">Configure sua partida abaixo</p>
+        
+        <!-- Seletor de quantidade de jogadores -->
+        <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-600/50 mb-6">
+            <label class="block text-slate-300 font-semibold mb-2 text-sm md:text-base">Quantidade de Jogadores</label>
+            <div class="flex items-center justify-center gap-4">
+                <button onclick="adjustPlayers(-1)" class="w-10 h-10 bg-slate-600 hover:bg-slate-500 active:scale-90 rounded-lg flex items-center justify-center font-bold text-xl select-none transition-all">-</button>
+                <span id="player-count-display" class="text-3xl font-extrabold text-indigo-400 w-12 text-center">4</span>
+                <button onclick="adjustPlayers(1)" class="w-10 h-10 bg-slate-600 hover:bg-slate-500 active:scale-90 rounded-lg flex items-center justify-center font-bold text-xl select-none transition-all">+</button>
+            </div>
+            <p id="player-roles-summary" class="text-xs font-medium text-amber-400 mt-3 bg-amber-900/30 py-1.5 px-3 rounded-md border border-amber-500/30 inline-block">3 Civis e 1 Espião</p>
+        </div>
+
+        <p class="text-slate-300 font-semibold mb-3 text-sm md:text-base text-left">Escolha o Tema</p>
+        <div class="grid grid-cols-2 gap-3 mb-8">
+            <button id="btn-objetos" onclick="selectCategory('objetos')" class="category-btn p-4 bg-slate-700 hover:bg-indigo-950 rounded-xl border-2 border-slate-600 hover:border-indigo-500 transition-all font-semibold flex flex-col items-center gap-2 text-sm md:text-base">
+                <span class="text-2xl">📦</span> Objetos
+            </button>
+            <button id="btn-animais" onclick="selectCategory('animais')" class="category-btn p-4 bg-slate-700 hover:bg-indigo-950 rounded-xl border-2 border-slate-600 hover:border-indigo-500 transition-all font-semibold flex flex-col items-center gap-2 text-sm md:text-base">
+                <span class="text-2xl">🦁</span> Animais
+            </button>
+            <button id="btn-palavras" onclick="selectCategory('palavras')" class="category-btn p-4 bg-slate-700 hover:bg-indigo-950 rounded-xl border-2 border-slate-600 hover:border-indigo-500 transition-all font-semibold flex flex-col items-center gap-2 text-sm md:text-base">
+                <span class="text-2xl">✍️</span> Palavras
+            </button>
+            <button id="btn-biblia" onclick="selectCategory('biblia')" class="category-btn p-4 bg-slate-700 hover:bg-indigo-950 rounded-xl border-2 border-slate-600 hover:border-indigo-500 transition-all font-semibold flex flex-col items-center gap-2 text-sm md:text-base">
+                <span class="text-2xl">📖</span> Bíblia
+            </button>
+        </div>
+
+        <button onclick="startGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/30 transform active:scale-95 text-lg">
+            Sorteie as Cartas
+        </button>
+    </div>
+
+    <div id="game-screen" class="hidden w-full max-w-md">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl md:text-3xl font-bold">Passe o Celular</h2>
+            <p id="player-turn" class="text-indigo-400 font-bold text-lg md:text-xl mt-1">Jogador 1 de 4</p>
+            <p class="text-xs md:text-sm text-slate-400 mt-2 bg-slate-800/80 py-2 px-3 rounded-lg border border-slate-700">
+                Toque no card para revelar. Esconda-o novamente clicando de novo antes de passar para o lado.
+            </p>
+        </div>
+
+        <div class="relative h-80 w-full perspective mb-6">
+            <div id="card-container" class="w-full h-full relative">
+                <!-- Card renderizado via JS -->
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center px-4">
+            <button id="prev-btn" onclick="prevCard()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white p-4 rounded-full disabled:opacity-20 disabled:cursor-not-allowed transition-all" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span id="card-indicator" class="font-mono text-xl text-slate-400 bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-700/80">1 / 4</span>
+            <button id="next-btn" onclick="nextCard()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white p-4 rounded-full disabled:opacity-20 disabled:cursor-not-allowed transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+
+        <div class="mt-8 text-center">
+            <button onclick="resetGame()" class="text-slate-500 hover:text-slate-300 underline text-sm transition-all">Reiniciar e Mudar Configurações</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = {
+            objetos: [
+                "Relógio de Pulso", "Guarda-chuva", "Câmara Fotográfica", "Óculos de Sol", 
+                "Computador Portátil", "Garrafa de Água", "Chaves de Casa", "Micro-ondas", 
+                "Bicicleta", "Mochila", "Aspirador de Pó", "Calculadora", "Violão", 
+                "Martelo", "Cadeira", "Xícara de Café", "Espelho", "Luminária"
+            ],
+            animais: [
+                "Leão", "Elefante", "Girafa", "Cachorro", "Gato", "Golfinho", 
+                "Águia", "Tubarão", "Tartaruga", "Urso Polar", "Canguru", 
+                "Zebra", "Jacaré", "Pinguim", "Leopardo", "Polvo", "Camelo"
+            ],
+            palavras: [
+                "Viagem", "Amizade", "Internet", "Futebol", "Música", "Teatro", 
+                "Trânsito", "Casamento", "Chuva", "Fogo", "Aniversário", "Acampamento", 
+                "Pintura", "Dança", "Festa", "Parque de Diversões", "Cinema"
+            ],
+            biblia: [
+                "Moisés", "Davi", "Noé", "Abraão", "Sansão", "Salomão", "Daniel", 
+                "José do Egito", "Golias", "Maria", "Apóstolo Paulo", "Jonas", 
+                "Arca de Noé", "Jesus", "Elias", "Ester", "Ruth"
+            ]
+        };
+
+        let selectedCategory = 'objetos';
+        let playerCount = 4;
+        let spyCount = 1;
+        let players = [];
+        let currentIndex = 0;
+
+        // Função que calcula a quantidade ideal de espiões baseada na jogabilidade
+        function calculateSpies(totalPlayers) {
+            if (totalPlayers >= 12) return 4;
+            if (totalPlayers >= 9) return 3;
+            if (totalPlayers >= 6) return 2;
+            return 1;
+        }
+
+        function showSetup() {
+            document.getElementById('tutorial-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+            selectCategory('objetos');
+            updatePlayerDisplay();
+        }
+
+        function adjustPlayers(amount) {
+            // Limite máximo razoável de 20 para evitar bugs no pass-and-play e limite mínimo de 4
+            playerCount = Math.max(4, Math.min(20, playerCount + amount));
+            updatePlayerDisplay();
+        }
+
+        function updatePlayerDisplay() {
+            spyCount = calculateSpies(playerCount);
+            const civilCount = playerCount - spyCount;
+            
+            document.getElementById('player-count-display').innerText = playerCount;
+            
+            const spyText = spyCount === 1 ? '1 Espião' : `${spyCount} Espiões`;
+            document.getElementById('player-roles-summary').innerText = `${civilCount} Civis e ${spyText}`;
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            
+            // Remove destaque de todos os botões
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-indigo-900/80', 'border-indigo-500', 'text-indigo-200');
+                btn.classList.add('bg-slate-700', 'border-slate-600');
+            });
+
+            // Adiciona destaque ao botão selecionado
+            const activeBtn = document.getElementById(`btn-${cat}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-700', 'border-slate-600');
+                activeBtn.classList.add('bg-indigo-900/80', 'border-indigo-500', 'text-indigo-200');
+            }
+        }
+
+        function startGame() {
+            const list = categories[selectedCategory];
+            const secretWord = list[Math.floor(Math.random() * list.length)];
+            
+            // Lógica para sortear múltiplos espiões
+            players = [];
+            let roles = [];
+            
+            // Preenche o array de funções (ex: se 6 jogadores = 4 Civis e 2 Espiões)
+            for (let i = 0; i < playerCount; i++) {
+                if (i < spyCount) {
+                    roles.push("ESPIAO");
+                } else {
+                    roles.push("CIVIL");
+                }
+            }
+            
+            // Mistura as funções vigorosamente (algoritmo de Fisher-Yates)
+            for (let i = roles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [roles[i], roles[j]] = [roles[j], roles[i]];
+            }
+
+            // Atribui as funções misturadas aos jogadores
+            for (let i = 0; i < playerCount; i++) {
+                const isSpy = roles[i] === "ESPIAO";
+                players.push({
+                    id: i + 1,
+                    isSpy: isSpy,
+                    word: isSpy ? "VOCÊ É O ESPIÃO!" : `Palavra: ${secretWord}`
+                });
+            }
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            currentIndex = 0;
+            renderCard();
+        }
+
+        function renderCard() {
+            const container = document.getElementById('card-container');
+            const player = players[currentIndex];
+            
+            container.innerHTML = `
+                <div class="card-inner w-full h-full relative no-select" id="current-card" onclick="toggleFlip()">
+                    <div class="card-front bg-indigo-800 border-4 border-indigo-500 flex-col gap-4">
+                        <div class="text-6xl text-indigo-300">🕵️‍♂️</div>
+                        <div class="text-xl font-bold uppercase tracking-widest">Jogador ${currentIndex + 1}</div>
+                        <p class="text-xs text-indigo-400 mt-2">Clique para revelar</p>
+                    </div>
+                    <div class="card-back ${player.isSpy ? 'bg-red-950 border-red-500' : 'bg-emerald-950 border-emerald-500'} border-4 flex-col gap-4 p-6 text-center">
+                        <div class="text-5xl">${player.isSpy ? '🕵️' : '👥'}</div>
+                        <h3 class="text-2xl font-bold ${player.isSpy ? 'text-red-400' : 'text-emerald-400'}">${player.isSpy ? 'ESPIÃO' : 'CIVIL'}</h3>
+                        <p class="text-lg md:text-xl mt-4 font-semibold text-white px-3 py-2 bg-black/40 rounded-lg inline-block border border-white/10">${player.word}</p>
+                        <p class="text-xs text-slate-400 mt-4">Clique de novo para esconder antes de passar</p>
+                    </div>
+                </div>
+            `;
+            updateUI();
+        }
+
+        function toggleFlip() {
+            const card = document.getElementById('current-card');
+            card.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentIndex < players.length - 1) {
+                currentIndex++;
+                renderCard();
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderCard();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('player-turn').innerText = `Jogador ${currentIndex + 1} de ${players.length}`;
+            document.getElementById('card-indicator').innerText = `${currentIndex + 1} / ${players.length}`;
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').disabled = currentIndex === players.length - 1;
+        }
+
+        function resetGame() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
